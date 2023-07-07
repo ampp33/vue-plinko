@@ -21,6 +21,10 @@
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3"
   },
+  "devServer": {
+    "port": 8080,
+    "host": "127.0.0.1"
+  },
   "eslintConfig": {
     "root": true,
     "env": {

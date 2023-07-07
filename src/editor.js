@@ -51,7 +51,8 @@ export class Canvas {
 	}
 
 	addSvgElement(element) {
-		this.svg.appendChild(element)
+		this.svg.insertBefore(element, this.svg.firstElementChild)
+		// this.svg.appendChild(element)
 	}
 
 	removeSvgElement(element) {
@@ -263,29 +264,37 @@ export class DrawCircleHandler extends DrawShapeHandler {
 
 	handleMouseClick(mouseEvent) {
 		const canvas = this.drawHandler.getCanvas()
+		let finishDrawingCircle = false
 		if(this.#activeCircle) {
 			// end sphere
-			const { cx, cy } = this.getCircleCenterCoordinates()
 			const distance = this.getDistanceBetweenCircleAndMouseEvent(mouseEvent) 
 	
 			canvas.updateSvgAttributes(this.#activeCircle, {
 				r: distance
 			})
-	
-			const id = this.generateGuid()
 
-			this.persistFinalShapeDetails(this.#activeCircle)
-
-			this.#activeCircle = null
+			finishDrawingCircle = true
 		} else {
+			const id = this.generateGuid()
 			const {x, y} = this.getClosestGridPoint({x: mouseEvent.offsetX, y: mouseEvent.offsetY})
+
 			this.#activeCircle = canvas.createSvgElement('circle', {
+				id,
 				cx: x,
 				cy: y,
 				r: 0,
 				...this.constantAttributes
 			})
+
 			canvas.addSvgElement(this.#activeCircle)
+
+			// if the radius was set to a constant value then just complete drawing the circle, skip trying to size it
+			if(this.constantAttributes.r) finishDrawingCircle = true
+		}
+
+		if(finishDrawingCircle) {
+			this.persistFinalShapeDetails(this.#activeCircle)
+			this.#activeCircle = null
 		}
 	}
 
